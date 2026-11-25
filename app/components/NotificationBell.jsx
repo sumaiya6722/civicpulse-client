@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Bell, CheckCheck, LoaderCircle } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
 
 import { apiFetch } from "@/lib/api";
 
 export default function NotificationBell() {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -89,7 +91,15 @@ export default function NotificationBell() {
 
     if (notification.issueId?._id) {
       setIsOpen(false);
-      router.push(`/citizen/issues/${notification.issueId._id}`);
+      let issueRoute = "/citizen/issues";
+
+      if (pathname.startsWith("/department")) {
+        issueRoute = "/department/issues";
+      } else if (pathname.startsWith("/maintenance")) {
+        issueRoute = "/maintenance/issues";
+      }
+
+      router.push(`${issueRoute}/${notification.issueId._id}`);
     }
   };
 
@@ -184,8 +194,8 @@ export default function NotificationBell() {
                   <div className="flex items-start gap-3">
                     <span
                       className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${notification.isRead
-                          ? "bg-gray-300"
-                          : "bg-blue-600"
+                        ? "bg-gray-300"
+                        : "bg-blue-600"
                         }`}
                     />
 
