@@ -16,18 +16,20 @@ import {
 } from "lucide-react";
 
 import { apiFetch } from "@/lib/api";
+import NotificationBell from "@/app/components/NotificationBell";
 
 const statusStyles = {
   pending: "bg-yellow-100 text-yellow-700",
-  verified: "bg-blue-100 text-blue-700",
+  under_review: "bg-blue-100 text-blue-700",
   assigned: "bg-purple-100 text-purple-700",
-  "in-progress": "bg-orange-100 text-orange-700",
+  in_progress: "bg-orange-100 text-orange-700",
   resolved: "bg-green-100 text-green-700",
+  rejected: "bg-red-100 text-red-700",
 };
 
 const formatStatus = (status) => {
   return status
-    .split("-")
+    .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 };
@@ -74,12 +76,17 @@ export default function CitizenDashboardPage() {
   }, []);
 
   const totalIssues = issues.length;
+
   const pendingIssues = issues.filter(
-    (issue) => issue.status === "pending"
+    (issue) => issue.status === "pending" ||
+      issue.status === "under_review"
   ).length;
+
   const inProgressIssues = issues.filter(
-    (issue) => issue.status === "in-progress"
+    (issue) => issue.status === "in_progress" ||
+      issue.status === "assigned"
   ).length;
+
   const resolvedIssues = issues.filter(
     (issue) => issue.status === "resolved"
   ).length;
@@ -121,18 +128,23 @@ export default function CitizenDashboardPage() {
           <h1 className="text-2xl font-bold text-gray-900">
             Citizen Dashboard
           </h1>
+
           <p className="mt-1 text-sm text-gray-500">
-            Welcome back! Here`s an overview of your reported issues.
+            Welcome back! Here&apos;s an overview of your reported issues.
           </p>
         </div>
 
-        <Link
-          href="/citizen/issues/new"
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          <Plus size={19} />
-          Report an Issue
-        </Link>
+        <div className="flex items-center gap-3">
+          <NotificationBell />
+
+          <Link
+            href="/citizen/issues/new"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            <Plus size={19} />
+            Report an Issue
+          </Link>
+        </div>
       </div>
 
       {/* Error */}
@@ -177,6 +189,7 @@ export default function CitizenDashboardPage() {
             <h2 className="font-semibold text-gray-900">
               My Recent Reports
             </h2>
+
             <p className="mt-1 text-sm text-gray-500">
               Track the progress of issues you have reported.
             </p>
@@ -197,6 +210,7 @@ export default function CitizenDashboardPage() {
               className="animate-spin text-blue-600"
               size={28}
             />
+
             <span className="ml-3 text-sm text-gray-500">
               Loading your reports...
             </span>
@@ -209,7 +223,7 @@ export default function CitizenDashboardPage() {
             />
 
             <h3 className="font-semibold text-gray-800">
-              You haven`t reported any issues yet
+              You haven&apos;t reported any issues yet
             </h3>
 
             <p className="mt-2 text-sm text-gray-500">
@@ -243,7 +257,7 @@ export default function CitizenDashboardPage() {
                   <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500">
                     <span className="flex items-center gap-1">
                       <MapPin size={14} />
-                      {issue.location}
+                      {issue.location?.address || "Location unavailable"}
                     </span>
 
                     <span className="flex items-center gap-1">
